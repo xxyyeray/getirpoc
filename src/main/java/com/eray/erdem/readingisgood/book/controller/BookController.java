@@ -2,18 +2,17 @@ package com.eray.erdem.readingisgood.book.controller;
 
 
 import com.eray.erdem.readingisgood.book.model.BookCreate;
+import com.eray.erdem.readingisgood.book.model.BookCreated;
 import com.eray.erdem.readingisgood.book.model.BookUpdate;
 import com.eray.erdem.readingisgood.book.service.BookService;
-import com.eray.erdem.readingisgood.book.validator.IsbnValidator;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.web.bind.WebDataBinder;
 import org.springframework.web.bind.annotation.*;
 
 import javax.validation.Valid;
 
 import static org.springframework.http.HttpStatus.CREATED;
-import static org.springframework.http.HttpStatus.NO_CONTENT;
+import static org.springframework.http.HttpStatus.OK;
 
 @RestController
 @Slf4j
@@ -21,24 +20,19 @@ import static org.springframework.http.HttpStatus.NO_CONTENT;
 @RequestMapping(value = "books")
 public class BookController {
 
-    private final IsbnValidator isbnValidator;
-    private final BookService bookService;
 
-    @InitBinder(value = "bookPersist")
-    final protected void bindValidator(final WebDataBinder webDataBinder) {
-        webDataBinder.addValidators(isbnValidator);
-    }
+    private final BookService bookService;
 
     @PostMapping
     @ResponseStatus(CREATED)
-    public void persistBook(@Valid @RequestBody BookCreate bookPersist) {
-        bookService.persistBook(bookPersist);
+    public BookCreated persistBook(@Valid @RequestBody BookCreate bookPersist) {
+        return bookService.persistBook(bookPersist);
     }
 
 
     @PatchMapping
-    @ResponseStatus(NO_CONTENT)
-    public void updateStockSize(@Valid @RequestBody BookUpdate bookUpdate) {
-        bookService.updateStockSizeOfBook(bookUpdate);
+    @ResponseStatus(OK)
+    public BookUpdate updateStockSize(@Valid @RequestBody BookUpdate bookUpdate) {
+        return bookService.updateStockSize(bookUpdate);
     }
 }

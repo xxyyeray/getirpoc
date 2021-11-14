@@ -1,11 +1,8 @@
 package com.eray.erdem.readingisgood.customer.service;
 
-import com.eray.erdem.readingisgood.order.model.CustomerOrderItem;
-import com.eray.erdem.readingisgood.order.model.OrderInjection;
 import com.eray.erdem.readingisgood.customer.model.CustomerCreate;
 import com.eray.erdem.readingisgood.customer.model.CustomerCreateResponse;
-
-import java.util.List;
+import com.eray.erdem.readingisgood.order.model.CustomerOrderItem;
 
 public interface CustomerService {
 

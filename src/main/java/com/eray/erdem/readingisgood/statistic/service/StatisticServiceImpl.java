@@ -2,6 +2,7 @@ package com.eray.erdem.readingisgood.statistic.service;
 
 import com.eray.erdem.readingisgood.book.repository.BookRepository;
 import com.eray.erdem.readingisgood.customer.repository.CustomerRepository;
+import com.eray.erdem.readingisgood.order.exception.OrderNotFoundException;
 import com.eray.erdem.readingisgood.order.model.Order;
 import com.eray.erdem.readingisgood.order.repository.OrderRepository;
 import com.eray.erdem.readingisgood.statistic.Statistic;
@@ -24,40 +25,47 @@ public class StatisticServiceImpl implements StatisticService {
 
 
     @Override
-    public void getOrdersByDate(String customerId) {
-        List<Order> allByCustomer_id = orderRepository.findAllByCustomer_Id(customerId);
+    public List<Statistic> getOrdersByDate(String customerId) {
+        List<Order> orderList = orderRepository.findAllByCustomer_Id(customerId);
+        if (orderList.isEmpty()) {
+            log.error("Order not found {}", customerId);
+            throw new OrderNotFoundException(customerId);
+        }
 
-        // throw exception in here
         Map<String, List<Order>> listMap = new HashMap<>();
-        allByCustomer_id.forEach(e -> {
-            Date orderDate = e.getOrderDate();
-            LocalDate localDate = orderDate.toInstant().atZone(ZoneId.systemDefault()).toLocalDate();
-            String format = String.format("%d-%d", localDate.getYear(), localDate.getMonthValue());
-            List<Order> orders = listMap.get(format);
-            if (orders == null) {
-                List<Order> orderobject = new ArrayList<>();
-                listMap.put(format, orderobject);
-                orderobject.add(e);
-            } else {
-                orders.add(e);
-            }
+        orderList.forEach(e -> groupOrders(listMap, e));
+        List<Statistic> statistics = new ArrayList<>();
+        listMap.forEach((s, orders) -> calculateOrders(statistics, s, orders));
+        return statistics;
+    }
 
-        });
+    private void calculateOrders(List<Statistic> objects, String s, List<Order> orders) {
+        Statistic statistic = new Statistic();
+        statistic.setDate(s);
+        statistic.setOrderCount(orders.size());
+        orders.forEach(
+                e -> {
+                    double sum = e.getItems().stream().mapToDouble(x -> {
+                        int amount = x.getAmount();
+                        statistic.sumBookCount(amount);
+                        return x.getPrice() * amount;
+                    }).sum();
+                    statistic.setAmount(sum);
+                });
+        objects.add(statistic);
+    }
 
-        listMap.forEach((s, orders) -> {
-            Statistic statistic = new Statistic();
-            statistic.setDate(s);
-            statistic.setOrderCount(orders.size());
-            orders.forEach(
-                    e -> {
-                        double sum = e.getItems().stream().mapToDouble(x -> {
-                            int amount = x.getAmount();
-                            statistic.sumBookCount(amount);
-                            return x.getPrice() * amount;
-                        }).sum();
-                        statistic.setAmount(sum);
-                    });
-        });
-        System.out.println(allByCustomer_id);
+    private void groupOrders(Map<String, List<Order>> listMap, Order e) {
+        Date orderDate = e.getOrderDate();
+        LocalDate localDate = orderDate.toInstant().atZone(ZoneId.systemDefault()).toLocalDate();
+        String format = String.format("%d-%d", localDate.getYear(), localDate.getMonthValue());
+        List<Order> orders = listMap.get(format);
+        if (orders == null) {
+            List<Order> orderList = new ArrayList<>();
+            listMap.put(format, orderList);
+            orderList.add(e);
+        } else {
+            orders.add(e);
+        }
     }
 }

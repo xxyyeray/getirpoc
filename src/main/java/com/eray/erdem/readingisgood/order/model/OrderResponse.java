@@ -6,7 +6,7 @@ import java.util.Date;
 import java.util.List;
 
 @Data
-public class Asd {
+public class OrderResponse {
     private Date orderDate;
     private OrderStatus orderStatus;
     private List<OrderItem> items;

@@ -44,25 +44,18 @@ public class OrderServiceImpl implements OrderService {
             String isbn = e.getIsbn();
             Integer amount = e.getAmount();
             Optional<Book> byIsbn = bookRepository.findByIsbn(isbn);
-            if (byIsbn.isEmpty()) {
-                log.error("Book Not Found {}", isbn);
-                throw new BookNotFoundException("Book Not Found, isbn number is" + isbn);
-            }
+
+            isBookExist(isbn, byIsbn);
             Book book = byIsbn.get();
             books.add(book);
             int stock = book.getStock();
-            if (stock == 0) {
-                log.error("The book was out of stock. {}", book.getId());
-                throw new OutOfStockException(book.getId());
-            } else if (amount > stock) {
-                log.error("insufficient stock ,  number of purchases {}  stock quantity {}", amount, stock);
-                throw new InsufficientStockException(amount, stock, isbn);
-            }
+            isBuyableBook(isbn, amount, stock);
+            e.setPrice(book.getPrice());
             book.setStock(stock - amount);
             bookRepository.save(book);
         });
 
-
+        log.info("Order creating  for customer ", order.getCustomerNumber());
         Order orderEntity = Order.builder()
                 .customer(customer)
                 .orderStatus(OrderStatus.PREPARING)
@@ -71,22 +64,45 @@ public class OrderServiceImpl implements OrderService {
                 .customer(customer)
                 .build();
 
-        Order savedOrder = orderRepository.save(orderEntity);
+        Order savedOrder = orderRepository.insert(orderEntity);
 
+        log.info("Order created  for customer ", order.getCustomerNumber());
         return new OrderDetail(savedOrder.getId());
 
 
     }
 
+    private void isBookExist(String isbn, Optional<Book> byIsbn) {
+        if (byIsbn.isEmpty()) {
+            log.error("Book Not Found {}", isbn);
+            throw new BookNotFoundException(isbn);
+        }
+    }
+
+    private void isBuyableBook(String isbn, Integer amount, int stock) {
+        if (stock == 0) {
+            log.error("The book was out of stock. {}", isbn);
+            throw new OutOfStockException(isbn);
+        } else if (amount > stock) {
+            log.error("insufficient stock ,  number of purchases {}  stock quantity {}", amount, stock);
+            throw new InsufficientStockException(amount, stock, isbn);
+        }
+    }
+
+
     @Override
     public Order getOrder(String id) {
+        log.info("Orders query  which id is {}", id);
         Optional<Order> byId = orderRepository.findById(id);
         return byId.orElseThrow(() -> new OrderNotFoundException(id));
     }
 
     @Override
     public List<Order> getOrdersByDate(Date startDate, Date endDate) {
+        log.info("Orders query  between dates {} and  {}", startDate, endDate);
         return orderRepository.findAllByOrderDateBetween(startDate, endDate);
 
     }
+
+
 }

@@ -19,9 +19,6 @@ public class OrderItem {
     @NotNull(message = "amount can not be null")
     private Integer amount;
 
-
-    @Min(value = 5, message = "price  must be bigger than 5")
-    @NotNull(message = "price can not be null")
     private Double price;
 
 

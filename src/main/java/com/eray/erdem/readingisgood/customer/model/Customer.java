@@ -1,6 +1,7 @@
 package com.eray.erdem.readingisgood.customer.model;
 
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import lombok.Builder;
 import lombok.Data;
 import org.springframework.data.annotation.Id;
@@ -16,6 +17,7 @@ public class Customer {
     private String name;
     private String surname;
     private String email;
+    @JsonIgnore
     private String password;
 
 

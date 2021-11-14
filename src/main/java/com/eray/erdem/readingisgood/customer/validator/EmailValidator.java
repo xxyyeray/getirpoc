@@ -1,5 +1,6 @@
 package com.eray.erdem.readingisgood.customer.validator;
 
+import com.eray.erdem.readingisgood.customer.exception.RegisteredEmailException;
 import com.eray.erdem.readingisgood.customer.model.CustomerCreate;
 import com.eray.erdem.readingisgood.customer.repository.CustomerRepository;
 import lombok.RequiredArgsConstructor;
@@ -18,8 +19,7 @@ public class EmailValidator {
         String email = customer.getEmail();
         if (customerRepository.existsByEmail(email)) {
             log.error("Registered email account {}", email);
-
-
+            throw new RegisteredEmailException(email);
         }
     }
 }
