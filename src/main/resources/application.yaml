@@ -8,8 +8,10 @@ spring:
   data:
     mongodb:
       auto-index-creation: on
+      host: mongo
+      port: 27017
+      database: test
   application:
     name: readingisgood
   profiles:
     active: dev
-
