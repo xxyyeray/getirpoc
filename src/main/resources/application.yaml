@@ -1,0 +1,15 @@
+
+server:
+  servlet:
+    context-path: /api
+
+
+spring:
+  data:
+    mongodb:
+      auto-index-creation: on
+  application:
+    name: readingisgood
+  profiles:
+    active: dev
+
