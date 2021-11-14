@@ -2,7 +2,6 @@ package com.eray.erdem.readingisgood.statistic.service;
 
 import com.eray.erdem.readingisgood.book.repository.BookRepository;
 import com.eray.erdem.readingisgood.customer.repository.CustomerRepository;
-import com.eray.erdem.readingisgood.order.exception.OrderNotFoundException;
 import com.eray.erdem.readingisgood.order.model.Order;
 import com.eray.erdem.readingisgood.order.repository.OrderRepository;
 import com.eray.erdem.readingisgood.statistic.Statistic;
@@ -29,7 +28,7 @@ public class StatisticServiceImpl implements StatisticService {
         List<Order> orderList = orderRepository.findAllByCustomer_Id(customerId);
         if (orderList.isEmpty()) {
             log.error("Order not found {}", customerId);
-            throw new OrderNotFoundException(customerId);
+            return Collections.emptyList();
         }
 
         Map<String, List<Order>> listMap = new HashMap<>();

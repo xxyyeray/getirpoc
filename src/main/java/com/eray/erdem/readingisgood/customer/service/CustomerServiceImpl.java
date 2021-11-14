@@ -13,6 +13,7 @@ import com.eray.erdem.readingisgood.order.repository.OrderRepository;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.domain.PageRequest;
+import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
 import java.util.ArrayList;
@@ -29,6 +30,8 @@ public class CustomerServiceImpl implements CustomerService {
     private final OrderRepository orderRepository;
     private static final int PAGE_SIZE = 5;
 
+    private final PasswordEncoder bcyrptPasswordencoder;
+
     @Override
     public CustomerCreateResponse persistCustomer(CustomerCreate customerCreate) {
         String email = customerCreate.getEmail();
@@ -41,7 +44,7 @@ public class CustomerServiceImpl implements CustomerService {
         Customer customer = Customer.builder()
                 .name(customerCreate.getName())
                 .surname(customerCreate.getSurname())
-                .password(customerCreate.getPassword())
+                .password(bcyrptPasswordencoder.encode(customerCreate.getPassword()))
                 .email(email)
                 .build();
 

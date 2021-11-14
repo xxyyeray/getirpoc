@@ -1,5 +1,6 @@
 package com.eray.erdem.readingisgood.book.model;
 
+import lombok.Builder;
 import lombok.Data;
 import org.hibernate.validator.constraints.ISBN;
 
@@ -8,6 +9,7 @@ import javax.validation.constraints.NotNull;
 import javax.validation.constraints.Size;
 
 @Data
+@Builder
 public class BookCreate {
 
     @ISBN(message = "set valid isbn format")
